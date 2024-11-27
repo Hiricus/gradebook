@@ -1,7 +1,7 @@
 package users;
 
-import org.example.Discipline;
-import org.example.StudentGroup;
+import example.Discipline;
+import example.StudentGroup;
 
 import java.util.ArrayList;
 

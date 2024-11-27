@@ -1,6 +1,6 @@
 package users;
 
-import org.example.Discipline;
+import example.Discipline;
 
 import java.util.ArrayList;
 
