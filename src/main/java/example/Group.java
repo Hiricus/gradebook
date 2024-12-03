@@ -1,6 +1,6 @@
 package example;
 
-import users.User;
+import com.pavmaxdav.digital_journal.enitiy.User;
 
 import java.util.ArrayList;
 

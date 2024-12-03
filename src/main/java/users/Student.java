@@ -1,5 +1,6 @@
 package users;
 
+import com.pavmaxdav.digital_journal.enitiy.User;
 import example.Discipline;
 
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ public class Student extends User {
         super(id);
     }
 
-    public Student(int id, String firstName, String lastName, String group) {
-        super(id, firstName, lastName);
+    public Student(int id, String firstName, String lastName, String group, String password) {
+        super(id, firstName, lastName, password);
         this.group = group;
     }
 

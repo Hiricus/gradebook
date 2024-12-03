@@ -1,5 +1,6 @@
 package users;
 
+import com.pavmaxdav.digital_journal.enitiy.User;
 import example.Discipline;
 import example.StudentGroup;
 
@@ -14,8 +15,8 @@ public class Teacher extends User {
     public Teacher(int id) {
         super(id);
     }
-    public Teacher(int id, String firstName, String lastName) {
-        super(id, firstName, lastName);
+    public Teacher(int id, String firstName, String lastName, String password) {
+        super(id, firstName, lastName, password);
     }
 
     // Геттеры для групп
