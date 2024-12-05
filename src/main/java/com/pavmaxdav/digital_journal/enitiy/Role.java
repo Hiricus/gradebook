@@ -3,8 +3,6 @@ package com.pavmaxdav.digital_journal.enitiy;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -13,7 +11,7 @@ public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
@@ -23,7 +21,7 @@ public class Role implements GrantedAuthority {
 
     public Role() {}
 
-    public Role(Long id, String name) {
+    public Role(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -41,11 +39,11 @@ public class Role implements GrantedAuthority {
         return name;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
