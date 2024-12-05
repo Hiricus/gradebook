@@ -3,6 +3,9 @@ package com.pavmaxdav.digital_journal.enitiy;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import java.util.Collection;
@@ -13,6 +16,9 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
+    @Column(name = "login")
+    private String login;
 
     @Column(name = "first_name")
     private String firstName;
@@ -31,15 +37,15 @@ public class User implements UserDetails {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     // Двусторонняя связь с оценками
     @OneToMany(mappedBy = "gradeOwner", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Grade> grades;
+    private Set<Grade> grades = new HashSet<>();
 
     // Двусторонняя связь с дисциплинами, проводимыми пользователем (только для преподавателей)
     @OneToMany(mappedBy = "appointedTeacher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Discipline> heldDisciplines;
+    private Set<Discipline> heldDisciplines = new HashSet<>();
 
     // Двусторонняя связь с учебной группой, в которой учится пользователь (только для студентов)
     @ManyToOne(cascade = CascadeType.ALL)
@@ -91,6 +97,18 @@ public class User implements UserDetails {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
+    }
+
+    // Для сравнения используется только логин
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(login, user.login);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(login);
     }
 
     @Override

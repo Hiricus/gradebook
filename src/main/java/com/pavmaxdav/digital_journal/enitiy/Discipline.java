@@ -2,6 +2,8 @@ package com.pavmaxdav.digital_journal.enitiy;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity()
@@ -19,18 +21,32 @@ public class Discipline {
     private User appointedTeacher;
 
     @ManyToMany(mappedBy = "disciplines")
-    private Set<Group> groups;
+    private Set<Group> groups = new HashSet<>();
 
     // Двусторонняя связь с оценками, выставленными по этой дисциплине
     @OneToMany(mappedBy = "discipline", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Grade> grades;
+    private Set<Grade> grades = new HashSet<>();
 
+    // Конструкторы
     public Discipline() {}
     public Discipline(String name, User appointedTeacher) {
         this.name = name;
         this.appointedTeacher = appointedTeacher;
     }
 
+    // Для сравнения используются название и назначенный преподаватель
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Discipline that = (Discipline) o;
+        return Objects.equals(name, that.name) && Objects.equals(appointedTeacher, that.appointedTeacher);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, appointedTeacher);
+    }
+
+    // Геттеры
     public Integer getId() {
         return id;
     }
@@ -47,6 +63,7 @@ public class Discipline {
         return grades;
     }
 
+    // Сеттеры
     public void setGroups(Set<Group> groups) {
         this.groups = groups;
     }
@@ -54,6 +71,7 @@ public class Discipline {
         this.grades = grades;
     }
 
+    // Для добавления в множества
     public void addGroup(Group group) {
         groups.add(group);
     }

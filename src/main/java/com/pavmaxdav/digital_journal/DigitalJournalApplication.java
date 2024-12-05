@@ -11,7 +11,4 @@ public class DigitalJournalApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DigitalJournalApplication.class, args);
 	}
-
-
-
 }
