@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -14,14 +15,18 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonBackReference
     private Set<User> users = new HashSet<>();
 
     // Конструкторы
     public Role() {}
+    public Role(String name) {
+        this.name = name;
+    }
     public Role(Integer id, String name) {
         this.id = id;
         this.name = name;

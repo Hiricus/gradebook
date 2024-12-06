@@ -13,7 +13,7 @@ public class Discipline {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToOne(cascade = CascadeType.ALL)

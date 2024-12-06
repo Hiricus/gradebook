@@ -13,11 +13,11 @@ public class Grade {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "grade")
+    @Column(name = "grade", nullable = false)
     private String grade;
 
     // Дата и время (без часового пояса)
-    @Column(name = "given_date_time")
+    @Column(name = "given_date_time", nullable = false)
     private LocalDateTime dateTime;
 
     // Двусторонняя связь с пользователем получившим оценку

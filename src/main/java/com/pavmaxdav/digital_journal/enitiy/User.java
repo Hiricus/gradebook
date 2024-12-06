@@ -1,5 +1,7 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +19,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "login")
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
 
     @Column(name = "first_name")
@@ -34,9 +36,11 @@ public class User implements UserDetails {
     private String password;
 
     // Связь с ролями многие ко многим
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @JsonManagedReference
+    @JsonIgnore  // Игнорим роли так как их уже обрабатывает security
     private Set<Role> roles = new HashSet<>();
 
     // Двусторонняя связь с оценками
@@ -58,6 +62,9 @@ public class User implements UserDetails {
     public int getId() {
         return id;
     }
+    public String getLogin() {
+        return login;
+    }
     public String getFirstName() {
         return firstName;
     }
@@ -75,28 +82,35 @@ public class User implements UserDetails {
     public Set<Role> getRoles() {
         return roles;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-    private void setRoles(Set<Role> roles) {
+
+    // Тут был private, хз почему
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-
-    private void addRole(Role role) {
+    // И тут тоже
+    public void addRole(Role role) {
         this.roles.add(role);
     }
 
-
+    // Конструкторы
     public User() {}
     public User(int id) {
         this.id = id;
     }
-    public User(int id, String firstName, String lastName, String password) {
-        this.id = id;
+    public User(String login, String email, String password) {
+        this.login = login;
+        this.email = email;
+        this.password = password;
+    }
+    public User(String login, String firstName, String lastName, String password, String email) {
+        this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
+        this.email = email;
     }
 
     // Для сравнения используется только логин
