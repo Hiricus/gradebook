@@ -3,13 +3,10 @@ package com.pavmaxdav.digital_journal;
 import com.pavmaxdav.digital_journal.enitiy.Role;
 import com.pavmaxdav.digital_journal.enitiy.User;
 import com.pavmaxdav.digital_journal.model.UserRepository;
+import com.pavmaxdav.digital_journal.service.RoleService;
 import com.pavmaxdav.digital_journal.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.service.annotation.GetExchange;
-
-import java.util.HashSet;
 
 @SpringBootApplication
 public class DigitalJournalApplication {
@@ -17,12 +14,14 @@ public class DigitalJournalApplication {
 	public static void main(String[] args) {
 		var context =  SpringApplication.run(DigitalJournalApplication.class, args);
 		UserRepository repository = context.getBean(UserRepository.class);
-		UserService service = context.getBean(UserService.class);
+		UserService userService = context.getBean(UserService.class);
+		RoleService roleService = context.getBean(RoleService.class);
 
 //		repository.save(createUser1());
 //		repository.save(createUser2());
 
-		service.addRoleToUser(createUser2(), new Role("Labmem"));
+		userService.addRoleToUser(createUser2(), new Role("Labmem"));
+		roleService.addRole(new Role("GOAT"));
 	}
 
 	public static User createUser1() {

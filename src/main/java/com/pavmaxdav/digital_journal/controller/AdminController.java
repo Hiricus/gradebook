@@ -1,5 +1,7 @@
 package com.pavmaxdav.digital_journal.controller;
 
+import com.pavmaxdav.digital_journal.enitiy.Discipline;
+import com.pavmaxdav.digital_journal.enitiy.Group;
 import com.pavmaxdav.digital_journal.enitiy.Role;
 import com.pavmaxdav.digital_journal.enitiy.User;
 import com.pavmaxdav.digital_journal.service.RoleService;
@@ -7,14 +9,12 @@ import com.pavmaxdav.digital_journal.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/admin")
 public class AdminController {
     private UserService userService;
     private RoleService roleService;
@@ -25,6 +25,7 @@ public class AdminController {
         this.roleService = roleService;
     }
 
+    // Видеть всех юзеров
     @GetMapping("/users/getAll")
     public ResponseEntity<Object> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -35,6 +36,7 @@ public class AdminController {
         }
     }
 
+    // Видеть все роли
     @GetMapping("/roles/getAll")
     public ResponseEntity<Object> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();
@@ -44,4 +46,74 @@ public class AdminController {
             return new ResponseEntity<>(roles, HttpStatus.OK);
         }
     }
+
+    // Добавлять пользователей
+    @PostMapping("/users/add/")
+    public User addNewUser(@RequestParam User givenUser) {
+        return null;
+    }
+    // Удалять пользователей
+    @DeleteMapping("/users/remove/{login}")
+    public User removeUser(@PathVariable String login) {
+        return null;
+    }
+
+    // Добавлять роли пользователям
+    @PutMapping("/users/addRole")
+    public void addRoleToUser(@RequestHeader("user-login") String login, @RequestHeader("role") String roleName) {
+
+    }
+    // Удалять роли у пользователей
+    @PutMapping("/users/removeRole")
+    public void removeRoleFromUser(@RequestHeader("user-login") String login, @RequestHeader("role") String roleName) {
+
+    }
+
+    // Добавлять дисциплины (Названия могут повторяться, пока назначены разные преподы)
+    @PostMapping("/disciplines/add/{disciplineName}")
+    public Discipline addDiscipline(@PathVariable String disciplineName) {
+        return null;
+    }
+    // Удалять дисциплины
+    @DeleteMapping("/disciplines/remove/{disciplineName}")
+    public Discipline removeDiscipline(@PathVariable String disciplineName) {
+        return null;
+    }
+
+    // Назначать препода на дисциплину
+    @PutMapping("/disciplines/assignTeacher")
+    public void assignTeacherToDiscipline(@RequestHeader("discipline") String disciplineName, @RequestHeader("teacher") String login) {
+
+    }
+    // Удалять препода с дисциплины
+    @PutMapping("/disciplines/removeTeacher")
+    public void removeTeacherFromDiscipline(@RequestHeader("discipline") String disciplineName, @RequestHeader("teacher") String login) {
+
+    }
+
+    // Добавлять группы
+    @PostMapping("/groups/add/{name}")
+    public Group addNewGroup(@PathVariable String name) {
+        return null;
+    }
+    // Удаляем группы
+    @DeleteMapping("/groups/remove/{name}")
+    public Group removeGroup(@PathVariable String name) {
+        return null;
+    }
+
+    // Добавлять пользователей в группы
+    @PutMapping("/groups/addUser")
+    public void addStudentToGroup(@RequestHeader("group") String groupName, @RequestHeader("student") String login) {
+
+    }
+    // Удалять пользователей из групп
+    @PutMapping("/groups/removeUser")
+    public void removeStudentFromGroup(@RequestHeader("group") String groupName, @RequestHeader("student") String login) {
+
+    }
+
+    // Менять оценки
+    // А как однозначно определить оценку я хз
+    // Приехали
 }
