@@ -48,11 +48,11 @@ public class User implements UserDetails {
     private Set<Grade> grades = new HashSet<>();
 
     // Двусторонняя связь с дисциплинами, проводимыми пользователем (только для преподавателей)
-    @OneToMany(mappedBy = "appointedTeacher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "appointedTeacher", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     private Set<Discipline> heldDisciplines = new HashSet<>();
 
     // Двусторонняя связь с учебной группой, в которой учится пользователь (только для студентов)
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "group_id")
     private Group group;
 
@@ -76,6 +76,12 @@ public class User implements UserDetails {
     }
     public String getPassword() {
         return password;
+    }
+    public Group getGroup() {
+        return group;
+    }
+    public Set<Grade> getGrades() {
+        return grades;
     }
 
     // Сеттеры
@@ -161,5 +167,20 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+
+    public boolean hasRole(String roleName) {
+        for (Role role : this.getRoles()) {
+            if (Objects.equals(role.getName(), roleName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public UserBasicInfo getUserBasicInfo() {
+        UserBasicInfo basicInfo = new UserBasicInfo(this.getLogin(), this.getFirstName(), this.getLastName());
+        return basicInfo;
     }
 }

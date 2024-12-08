@@ -3,6 +3,7 @@ package com.pavmaxdav.digital_journal.controller;
 import com.pavmaxdav.digital_journal.enitiy.Discipline;
 import com.pavmaxdav.digital_journal.enitiy.Grade;
 import com.pavmaxdav.digital_journal.enitiy.User;
+import com.pavmaxdav.digital_journal.enitiy.UserBasicInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,7 @@ public class StudentController {
 
     // Видеть свою группу (только имена)
     @GetMapping("/groups/{groupName}")
-    public List<String> getUsersFromOwnGroup(@PathVariable String groupName) {
+    public List<UserBasicInfo> getUsersFromOwnGroup(@PathVariable String groupName) {
         return null;
     }
 
