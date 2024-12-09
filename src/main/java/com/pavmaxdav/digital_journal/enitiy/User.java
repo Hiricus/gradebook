@@ -49,6 +49,7 @@ public class User implements UserDetails {
 
     // Двусторонняя связь с дисциплинами, проводимыми пользователем (только для преподавателей)
     @OneToMany(mappedBy = "appointedTeacher", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @JsonIgnore
     private Set<Discipline> heldDisciplines = new HashSet<>();
 
     // Двусторонняя связь с учебной группой, в которой учится пользователь (только для студентов)
@@ -86,13 +87,16 @@ public class User implements UserDetails {
     public Set<Discipline> getHeldDisciplines() {
         return heldDisciplines;
     }
-
-    // Сеттеры
     public Set<Role> getRoles() {
         return roles;
     }
+
+    // Сеттеры
     public void setEmail(String email) {
         this.email = email;
+    }
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     // Тут был private, хз почему

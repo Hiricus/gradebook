@@ -1,8 +1,8 @@
 package com.pavmaxdav.digital_journal.service;
 
-import com.pavmaxdav.digital_journal.enitiy.Group;
-import com.pavmaxdav.digital_journal.enitiy.Role;
-import com.pavmaxdav.digital_journal.enitiy.User;
+import com.pavmaxdav.digital_journal.enitiy.*;
+import com.pavmaxdav.digital_journal.model.DisciplineRepository;
+import com.pavmaxdav.digital_journal.model.GroupRepository;
 import com.pavmaxdav.digital_journal.model.RoleRepository;
 import com.pavmaxdav.digital_journal.model.UserRepository;
 import jakarta.persistence.EntityExistsException;
@@ -18,11 +18,15 @@ import java.util.*;
 public class AdminService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+    private GroupRepository groupRepository;
+    private DisciplineRepository disciplineRepository;
 
     @Autowired
-    public AdminService(UserRepository userRepository, RoleRepository roleRepository) {
+    public AdminService(UserRepository userRepository, RoleRepository roleRepository, GroupRepository groupRepository, DisciplineRepository disciplineRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.groupRepository = groupRepository;
+        this.disciplineRepository = disciplineRepository;
     }
 
     // Получить всех пользователей
@@ -60,6 +64,7 @@ public class AdminService {
         if (getUserByLogin(user.getLogin()).isPresent()) {
             throw new EntityExistsException("User " + user.getLogin() + " already exists");
         } else {
+            // Привязываем пользователя к ролям на случай, если они уже есть в бд (а они обычно там есть)
             Set<Role> existingRoles = new HashSet<>();
             for (Role role : user.getRoles()) {
                 Role existingRole = roleRepository.findRoleByName(role.getName())
@@ -67,11 +72,14 @@ public class AdminService {
                 existingRoles.add(existingRole);
             }
             user.setRoles(existingRoles);
+
+            // Сохраняем пользователя
             return userRepository.save(user);
         }
     }
 
     // Удалить пользователя
+    // todo
     @Transactional
     public User removeUser(String login) {
         Optional<User> optionalUser = userRepository.findByLogin(login);
@@ -80,6 +88,17 @@ public class AdminService {
         // Отвязываем пользователя от всех его ролей
         for (Role role : user.getRoles()) {
             role.removeUser(user);
+        }
+
+        // Не отвязывем пользователя от оценок, их удалит каскадность
+
+        // Отвязываем преподов от проводимых дисциплин
+        for (Discipline discipline : user.getHeldDisciplines()) {
+            discipline.setAppointedTeacher(null);
+        }
+        //Удаляем пользователя из группы
+        if (user.getGroup() != null) {
+            user.getGroup().removeStudent(user);
         }
         // Удаляем пользователя
         userRepository.delete(user);
@@ -113,5 +132,166 @@ public class AdminService {
             // Удаляем роль у пользователя
             user.removeRole(role);
         }
+    }
+
+    // Получить все группы
+    @Transactional
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
+    }
+
+    // Получить группу по названию
+    @Transactional
+    public Optional<Group> getGroup(String name) {
+        return groupRepository.findByName(name);
+    }
+
+    // Добавить группу
+    @Transactional
+    public Group addNewGroup(String name) {
+        Optional<Group> optionalGroup = groupRepository.findByName(name);
+        if (optionalGroup.isPresent()) {
+            throw new EntityExistsException("Group " + name + " already exists");
+        } else {
+            Group group = new Group(name);
+            groupRepository.save(group);
+            return group;
+        }
+    }
+
+    // Удалить группу
+    @Transactional
+    public Group removeGroup(String name) {
+        Group group = groupRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Group " + name + " does not exist"));
+
+        // Отписываем все дисциплины от удаляемой группы
+        for (Discipline discipline : group.getDisciplines()) {
+            discipline.removeGroup(group);
+        }
+        // Отписываем всех студентов от удаляемой группы
+        for (User student : group.getStudents()) {
+            student.setGroup(null);
+        }
+
+        // Удаляем группу
+        groupRepository.delete(group);
+        return group;
+    }
+
+    // Добавить пользователя в группу
+    @Transactional
+    public void addUserToGroup(String login, String groupName) {
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        Optional<Group> optionalGroup = groupRepository.findByName(groupName);
+        User user = optionalUser.orElseThrow(() -> new EntityNotFoundException("User " + login + " not found"));
+        Group group = optionalGroup.orElseThrow(() -> new EntityNotFoundException("Group " + groupName + " not found"));
+
+        // Формируем связь с двух сторон
+        user.setGroup(group);
+        group.addStudent(user);
+    }
+
+    // Удалить пользователя из группы
+    @Transactional
+    public void removeUserFromGroup(String login, String groupName) {
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        Optional<Group> optionalGroup = groupRepository.findByName(groupName);
+        User user = optionalUser.orElseThrow(() -> new EntityNotFoundException("User " + login + " not found"));
+        Group group = optionalGroup.orElseThrow(() -> new EntityNotFoundException("Group " + groupName + " not found"));
+
+        // Удаляем связь с двух сторон
+        group.removeStudent(user);
+        user.setGroup(null);
+    }
+
+    // Найти все дисциплины
+    @Transactional
+    public List<Discipline> getAllDisciplines() {
+        return disciplineRepository.findAll();
+    }
+
+    // Найти дисциплину
+    @Transactional
+    public Optional<Discipline> getDiscipline(String disciplineName, String teacherLogin) {
+        User teacher = this.getUserByLogin(teacherLogin).orElseThrow(() -> new EntityNotFoundException("User " + teacherLogin + " not found"));
+        return disciplineRepository.findByAppointedTeacherAndName(teacher, disciplineName);
+    }
+
+    // Добавить новую дисциплину
+    @Transactional
+    public Discipline addNewDiscipline(String name, String teacherLogin) {
+        User user = this.getUserByLogin(teacherLogin).orElseThrow(() -> new EntityNotFoundException("User " + teacherLogin + " not found"));
+
+        // Если назначенный челик не препод - кидаем исключение хз какого типа
+        if (!(user.hasRole("teacher"))) {
+            throw new EntityTypeException("User " + teacherLogin + " must be a teacher", "reference idk");
+        }
+
+        // Если такая дисциплина есть - кидаем исключение
+        if (disciplineRepository.findByAppointedTeacherAndName(user, name).isPresent()) {
+            throw new EntityExistsException("Discipline " + name + ", led by " + teacherLogin + " already exists");
+        }
+
+        Discipline discipline = new Discipline(name, user);
+        // Добавляем дисциплину в список проводимых пользователем
+        user.getHeldDisciplines().add(discipline);
+        // Сохраняем дисциплину
+        disciplineRepository.save(discipline);
+        return discipline;
+    }
+
+    // Удалить дисциплину
+    @Transactional
+    public Discipline removeDiscipline(String disciplineName, String teacherLogin) {
+        Discipline discipline = this.getDiscipline(disciplineName, teacherLogin).orElseThrow(() -> new EntityNotFoundException("discipline " + disciplineName + " not found"));
+
+        // Удаляем инфу о дисциплине у назначенного на неё препода
+        User appointedTeacher = discipline.getAppointedTeacher();
+        if (appointedTeacher != null) {
+            appointedTeacher.getHeldDisciplines().remove(discipline);
+        }
+
+        // удаляем инфу о дисциплине у всех групп, у которых она была
+        for (Group group : discipline.getGroups()) {
+            group.removeDiscipline(discipline);
+        }
+        // Оценки не удаляем, их удалит каскадность
+
+        disciplineRepository.delete(discipline);
+        return discipline;
+    }
+
+    // Добавить дисциплину группе
+    @Transactional
+    public void addDisciplineToGroup(String groupName, String disciplineName, String teacherLogin) {
+        Group group = groupRepository.findByName(groupName).orElseThrow(() -> new EntityNotFoundException("Group " + groupName +" does not exist"));
+        Discipline discipline = this.getDiscipline(disciplineName, teacherLogin).orElseThrow(() -> new EntityNotFoundException("Discipline " + disciplineName + ", led by " + teacherLogin + " does not exist"));
+
+        // Если дисциплина уже добавлена в группу
+        for (Group disciplineGroup : this.getDiscipline(disciplineName, teacherLogin).get().getGroups()) {
+            if (disciplineGroup.getName().equals(groupName)) {
+                throw new EntityExistsException("Discipline is already added to the group " + groupName);
+            }
+        }
+
+        group.addDiscipline(discipline);
+        discipline.addGroup(group);
+    }
+
+    // Убрать дисциплину из группы
+    @Transactional
+    public void removeDisciplineFromGroup(String groupName, String disciplineName, String teacherLogin) {
+        Group group = groupRepository.findByName(groupName).orElseThrow(() -> new EntityNotFoundException("Group " + groupName +" does not exist"));
+        Discipline discipline = this.getDiscipline(disciplineName, teacherLogin).orElseThrow(() -> new EntityNotFoundException("Discipline " + disciplineName + ", led by " + teacherLogin + " does not exist"));
+
+        group.removeDiscipline(discipline);
+        discipline.removeGroup(group);
+    }
+
+    @Transactional
+    public void removeTempShit(Discipline discipline) {
+        System.out.println("removind shit @" + discipline.getId());
+        disciplineRepository.delete(discipline);
+        System.out.println("Shit @" + discipline.getId() + " removed");
     }
 }

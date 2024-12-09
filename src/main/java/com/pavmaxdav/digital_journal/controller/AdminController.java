@@ -69,6 +69,18 @@ public class AdminController {
 
     }
 
+    // Видеть все дисциплины
+    @GetMapping("/disciplines/getAll")
+    public ResponseEntity<Object> getAllDisciplines() {
+        List<Discipline> disciplines = adminService.getAllDisciplines();
+
+        if (disciplines.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(disciplines, HttpStatus.OK);
+        }
+    }
+
     // Добавлять дисциплины (Названия могут повторяться, пока назначены разные преподы)
     @PostMapping("/disciplines/add/{disciplineName}")
     public Discipline addDiscipline(@PathVariable String disciplineName) {
@@ -91,12 +103,18 @@ public class AdminController {
 
     }
 
+    // Видеть все группы
+    @GetMapping("/groups/getAll")
+    public List<Group> getAllGroups() {
+        return adminService.getAllGroups();
+    }
+
     // Добавлять группы
     @PostMapping("/groups/add/{name}")
     public Group addNewGroup(@PathVariable String name) {
         return null;
     }
-    // Удаляем группы
+    // Удалять группы
     @DeleteMapping("/groups/remove/{name}")
     public Group removeGroup(@PathVariable String name) {
         return null;

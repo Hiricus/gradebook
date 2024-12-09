@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -16,10 +17,10 @@ public class Group {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @JsonIgnore
     private Set<User> students = new HashSet<>();
 
-    // Тут был cascade ещё, ide сказала убрать
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "groups_disciplines", joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "discipline_id", referencedColumnName = "id"))
@@ -63,5 +64,19 @@ public class Group {
     }
     public void setDisciplines(Set<Discipline> disciplines) {
         this.disciplines = disciplines;
+    }
+
+    // Изменялки повонялки
+    public void addStudent(User student) {
+        this.students.add(student);
+    }
+    public void removeStudent(User student) {
+        this.students.remove(student);
+    }
+    public void addDiscipline(Discipline discipline) {
+        this.disciplines.add(discipline);
+    }
+    public void removeDiscipline(Discipline discipline) {
+        this.disciplines.remove(discipline);
     }
 }

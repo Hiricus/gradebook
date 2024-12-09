@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal;
 
+import com.pavmaxdav.digital_journal.enitiy.Discipline;
 import com.pavmaxdav.digital_journal.enitiy.Role;
 import com.pavmaxdav.digital_journal.enitiy.User;
 import com.pavmaxdav.digital_journal.model.RoleRepository;
@@ -18,15 +19,25 @@ public class DigitalJournalApplication {
 		AdminService adminService = context.getBean(AdminService.class);
 		RoleService roleService = context.getBean(RoleService.class);
 
-//		repository.save(createUser1());
-//		repository.save(createUser2());
-
-		//adminService.addRoleToUser(createUser2().getLogin(), new Role("Labmem"));
-		adminService.removeRoleFromUser("Filoriel", new Role("gaga"));
 		//roleService.addRole(new Role("GOAT"));
 
 		//adminService.addUser(createUser3());
-		//adminService.removeUser("Loh");
+//		adminService.addNewGroup("11-A");
+		adminService.addUserToGroup("Hiricus", "11-A");
+		adminService.addUserToGroup("Filoriel", "11-A");
+		adminService.removeUserFromGroup("Bardoon", "11-A");
+
+		//adminService.addUser(createPipets());
+		//adminService.removeUser("Yul'ka");
+		//adminService.addNewDiscipline("Math", "Yul'ka");
+		//adminService.addDisciplineToGroup("11-A", "Math", "Yul'ka");
+
+		adminService.removeGroup("11-A");
+
+
+		//adminService.removeDisciplineFromGroup("11-A", "Math", "Yul'ka");
+
+		//adminService.removeDiscipline("Math", "Yul'ka");
 	}
 
 	public static User createUser1() {
@@ -56,10 +67,21 @@ public class DigitalJournalApplication {
 	}
 
 	public static User createUser3() {
-		User user = new User("Loh", "name", "surname", "123", "some@mail");
+		User user = new User("Bardoon", "Bardoon the 1st", "Kozlov", "123", "some@mail");
 
 		user.addRole(new Role("User"));
 		user.addRole(new Role("Staff"));
+		user.addRole(new Role("GOAT"));
+
+		return user;
+	}
+
+	public static User createPipets() {
+		User user = new User("Yul'ka", "Юлия", "Александровна", "1488", "mail@ig");
+
+		user.addRole(new Role("User"));
+		user.addRole(new Role("Staff"));
+		user.addRole(new Role("teacher"));
 
 		return user;
 	}

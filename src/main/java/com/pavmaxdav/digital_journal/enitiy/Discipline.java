@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -16,11 +17,12 @@ public class Discipline {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "appointed_teacher_id")
     private User appointedTeacher;
 
     @ManyToMany(mappedBy = "disciplines")
+    @JsonIgnore
     private Set<Group> groups = new HashSet<>();
 
     // Двусторонняя связь с оценками, выставленными по этой дисциплине
@@ -70,6 +72,9 @@ public class Discipline {
     public void setGrades(Set<Grade> grades) {
         this.grades = grades;
     }
+    public void setAppointedTeacher(User appointedTeacher) {
+        this.appointedTeacher = appointedTeacher;
+    }
 
     // Для добавления в множества
     public void addGroup(Group group) {
@@ -77,5 +82,13 @@ public class Discipline {
     }
     public void addGrade(Grade grade) {
         grades.add(grade);
+    }
+
+    // Для удаления из множеств
+    public void removeGroup(Group group) {
+        groups.remove(group);
+    }
+    public void removeGrade(Grade grade) {
+        grades.remove(grade);
     }
 }
