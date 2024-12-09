@@ -5,7 +5,7 @@ import com.pavmaxdav.digital_journal.enitiy.Group;
 import com.pavmaxdav.digital_journal.enitiy.Role;
 import com.pavmaxdav.digital_journal.enitiy.User;
 import com.pavmaxdav.digital_journal.service.RoleService;
-import com.pavmaxdav.digital_journal.service.UserService;
+import com.pavmaxdav.digital_journal.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +16,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
-    private UserService userService;
+    private AdminService adminService;
     private RoleService roleService;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
-        this.userService = userService;
+    public AdminController(AdminService adminService, RoleService roleService) {
+        this.adminService = adminService;
         this.roleService = roleService;
     }
 
     // Видеть всех юзеров
     @GetMapping("/users/getAll")
     public ResponseEntity<Object> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+        List<User> users = adminService.getAllUsers();
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
@@ -55,7 +55,7 @@ public class AdminController {
     // Удалять пользователей
     @DeleteMapping("/users/remove/{login}")
     public User removeUser(@PathVariable String login) {
-        return null;
+        return adminService.removeUser(login);
     }
 
     // Добавлять роли пользователям

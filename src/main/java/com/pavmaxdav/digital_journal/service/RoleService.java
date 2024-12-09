@@ -3,6 +3,7 @@ package com.pavmaxdav.digital_journal.service;
 import com.pavmaxdav.digital_journal.enitiy.Role;
 import com.pavmaxdav.digital_journal.model.RoleRepository;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,5 +34,12 @@ public class RoleService {
     @Transactional
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
+    }
+
+    @Transactional
+    public void removeRoleById(Integer id) {
+        Optional<Role> optionalRole = roleRepository.findById(id);
+        Role role = optionalRole.orElseThrow(() -> new EntityNotFoundException("No role with id " + id));
+        roleRepository.removeRoleById(id);
     }
 }

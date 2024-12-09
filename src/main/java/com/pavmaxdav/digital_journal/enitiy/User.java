@@ -43,8 +43,8 @@ public class User implements UserDetails {
     @JsonIgnore  // Игнорим роли так как их уже обрабатывает security
     private Set<Role> roles = new HashSet<>();
 
-    // Двусторонняя связь с оценками
-    @OneToMany(mappedBy = "gradeOwner", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    // Двусторонняя связь с оценками. Если удаляется пользователь - удаляются и оценки
+    @OneToMany(mappedBy = "gradeOwner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Grade> grades = new HashSet<>();
 
     // Двусторонняя связь с дисциплинами, проводимыми пользователем (только для преподавателей)
@@ -83,6 +83,9 @@ public class User implements UserDetails {
     public Set<Grade> getGrades() {
         return grades;
     }
+    public Set<Discipline> getHeldDisciplines() {
+        return heldDisciplines;
+    }
 
     // Сеттеры
     public Set<Role> getRoles() {
@@ -99,6 +102,10 @@ public class User implements UserDetails {
     // И тут тоже
     public void addRole(Role role) {
         this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
     }
 
     // Конструкторы

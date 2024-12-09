@@ -15,13 +15,13 @@ import java.util.Set;
 
 @Service
 public class StudentService {
-    private UserService userService;
+    private AdminService adminService;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
 
     @Autowired
-    public StudentService(UserService userService, UserRepository userRepository, RoleRepository roleRepository) {
-        this.userService = userService;
+    public StudentService(AdminService adminService, UserRepository userRepository, RoleRepository roleRepository) {
+        this.adminService = adminService;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
@@ -36,7 +36,7 @@ public class StudentService {
     @Transactional
     public List<UserBasicInfo> getStudentsGroupBasicInfo(String login) {
         List<UserBasicInfo> basicInfoList = new ArrayList<>();
-        Optional<Group> optionalGroup = userService.getStudentsGroup(login);
+        Optional<Group> optionalGroup = adminService.getStudentsGroup(login);
 
         // Если пользователь не в группе - кидаем исключение
         if (optionalGroup.isEmpty()) {

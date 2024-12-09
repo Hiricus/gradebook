@@ -67,4 +67,9 @@ public class Grade {
     public LocalDateTime getDateTime() {
         return dateTime;
     }
+
+    // Сеттеры
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
 }
