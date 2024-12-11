@@ -6,13 +6,19 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.query.sqm.EntityTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-public class AdminService {
+public class AdminService implements UserDetailsService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private GroupRepository groupRepository;
@@ -53,6 +59,16 @@ public class AdminService {
         // Получаем группу
         User user = optionalUser.get();
         return Optional.of(user.getGroup());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        User userEntity = userRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(userEntity.getLogin(), userEntity.getPassword(), mapRolesToAuthorities(userEntity.getRoles()));
+    }
+
+    private Collection<GrantedAuthority> mapRolesToAuthorities(Set<Role> roles){
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet());
     }
 
 
