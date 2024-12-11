@@ -64,19 +64,19 @@ public class TeacherService {
 
     // Ставить оценки
     @Transactional
-    public Grade setGrade(Grade grade) {
-        gradeRepository.save(grade);
-        return grade;
+    public Grade setGrade(String gradeItself, String studentLogin, String disciplineName, String teacherLogin) {
+        return adminService.setGrade(gradeItself, studentLogin, disciplineName, teacherLogin);
     }
 
     // Менять оценки
     @Transactional
     public Grade changeGrade(Integer id, String changedGrade) {
-        Optional<Grade> optionalGrade = gradeRepository.findById(id);
-        Grade grade = optionalGrade.orElseThrow(() -> new EntityNotFoundException("No grade with id " + id));
+        return adminService.changeGrade(id, changedGrade);
+    }
 
-        grade.setGrade(changedGrade);
-        gradeRepository.save(grade);
-        return grade;
+    // Удалять оценки
+    @Transactional
+    public Grade removeGrade(Integer id) {
+        return adminService.removeGrade(id);
     }
 }

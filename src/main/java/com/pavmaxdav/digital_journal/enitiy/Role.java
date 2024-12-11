@@ -1,6 +1,7 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.pavmaxdav.digital_journal.dto.RoleDTO;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -79,5 +80,11 @@ public class Role implements GrantedAuthority {
 
     public void removeUser(User user) {
         this.users.remove(user);
+    }
+
+
+    // Создать DTO
+    public RoleDTO constructDTO() {
+        return new RoleDTO(this.getId(), this.getName());
     }
 }

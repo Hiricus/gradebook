@@ -1,5 +1,8 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pavmaxdav.digital_journal.dto.GradeDTO;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -21,17 +24,24 @@ public class Grade {
     private LocalDateTime dateTime;
 
     // Двусторонняя связь с пользователем получившим оценку
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinColumn(name = "grade_owner_id")
     private User gradeOwner;
 
     // Двусторонняя связь с дисциплиной, по которой выставлены оценки
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "discipline_id")
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @JoinColumn(name = "discipline_id", nullable = true)
+    @JsonIgnore
     private Discipline discipline;
 
     // Конструкторы
     public Grade() {}
+    public Grade(String grade, User gradeOwner, Discipline discipline) {
+        this.grade = grade;
+        this.gradeOwner = gradeOwner;
+        this.discipline = discipline;
+        this.dateTime = LocalDateTime.now();
+    }
     public Grade(String grade, LocalDateTime dateTime, User gradeOwner, Discipline discipline) {
         this.grade = grade;
         this.dateTime = dateTime;
@@ -49,6 +59,17 @@ public class Grade {
     @Override
     public int hashCode() {
         return Objects.hash(grade, dateTime, gradeOwner, discipline);
+    }
+
+    @Override
+    public String toString() {
+        return "Grade{" +
+                "id=" + id +
+                ", grade='" + grade + '\'' +
+                ", dateTime=" + dateTime +
+                ", gradeOwner=" + gradeOwner +
+                ", discipline=" + discipline +
+                '}';
     }
 
     // Геттеры
@@ -71,5 +92,16 @@ public class Grade {
     // Сеттеры
     public void setGrade(String grade) {
         this.grade = grade;
+    }
+    public void setGradeOwner(User gradeOwner) {
+        this.gradeOwner = gradeOwner;
+    }
+    public void setDiscipline(Discipline discipline) {
+        this.discipline = discipline;
+    }
+
+    public GradeDTO constructDTO() {
+        GradeDTO gradeDTO = new GradeDTO(this.getId(), this.getGrade(), this.getDateTime(), this.getGradeOwner().constructPartialDTO());
+        return gradeDTO;
     }
 }

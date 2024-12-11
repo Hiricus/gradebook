@@ -19,25 +19,43 @@ public class DigitalJournalApplication {
 		AdminService adminService = context.getBean(AdminService.class);
 		RoleService roleService = context.getBean(RoleService.class);
 
-		//roleService.addRole(new Role("GOAT"));
+//		roleService.addRole(new Role("student"));
+//		adminService.addRoleToUser("Hiricus", new Role("student"));
+//		adminService.addRoleToUser("Filoriel", new Role("student"));
+//		adminService.addRoleToUser("Bardoon", new Role("student"));
 
-		//adminService.addUser(createUser3());
-//		adminService.addNewGroup("11-A");
-		adminService.addUserToGroup("Hiricus", "11-A");
-		adminService.addUserToGroup("Filoriel", "11-A");
-		adminService.removeUserFromGroup("Bardoon", "11-A");
+//		adminService.addUser(createUser1());
+//		adminService.addUserToGroup("Hiricus", "11-A");
+//		adminService.setGrade("S", "Hiricus", "Math", "Yul'ka");
+
+
+
+//		adminService.addNewGroup("groupIg");
+//		adminService.addUserToGroup("Bardoon", "groupIg");
+		//adminService.removeGroup("11-A");
+//		adminService.addUserToGroup("Filoriel", "11-A");
+//		adminService.removeUserFromGroup("Bardoon", "11-A");
 
 		//adminService.addUser(createPipets());
 		//adminService.removeUser("Yul'ka");
-		//adminService.addNewDiscipline("Math", "Yul'ka");
-		//adminService.addDisciplineToGroup("11-A", "Math", "Yul'ka");
 
-		adminService.removeGroup("11-A");
+//		adminService.addNewDiscipline("Math", "Yul'ka");
+//		adminService.addDisciplineToGroup("11-A", "Math", "Yul'ka");
+
+//		adminService.setGrade("A", "Filoriel", "Math", "Yul'ka");
+//		adminService.setGrade("S", "Filoriel", "Math", "Yul'ka");
+//		adminService.setGrade("B", "Filoriel", "Math", "Yul'ka");
+
 
 
 		//adminService.removeDisciplineFromGroup("11-A", "Math", "Yul'ka");
-
 		//adminService.removeDiscipline("Math", "Yul'ka");
+
+//		adminService.removeUser("Hiricus");
+//		adminService.removeUser("Hiricus");
+
+
+		//adminService.removeGrade(1602);
 	}
 
 	public static User createUser1() {

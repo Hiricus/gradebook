@@ -1,10 +1,7 @@
 package com.pavmaxdav.digital_journal.service;
 
 import com.pavmaxdav.digital_journal.enitiy.*;
-import com.pavmaxdav.digital_journal.model.DisciplineRepository;
-import com.pavmaxdav.digital_journal.model.GroupRepository;
-import com.pavmaxdav.digital_journal.model.RoleRepository;
-import com.pavmaxdav.digital_journal.model.UserRepository;
+import com.pavmaxdav.digital_journal.model.*;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.query.sqm.EntityTypeException;
@@ -20,13 +17,15 @@ public class AdminService {
     private RoleRepository roleRepository;
     private GroupRepository groupRepository;
     private DisciplineRepository disciplineRepository;
+    private GradeRepository gradeRepository;
 
     @Autowired
-    public AdminService(UserRepository userRepository, RoleRepository roleRepository, GroupRepository groupRepository, DisciplineRepository disciplineRepository) {
+    public AdminService(UserRepository userRepository, RoleRepository roleRepository, GroupRepository groupRepository, DisciplineRepository disciplineRepository, GradeRepository gradeRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.groupRepository = groupRepository;
         this.disciplineRepository = disciplineRepository;
+        this.gradeRepository = gradeRepository;
     }
 
     // Получить всех пользователей
@@ -49,7 +48,7 @@ public class AdminService {
             throw new EntityNotFoundException("No such user with login: " + login);
         }
         if (!(optionalUser.get().hasRole("student"))) {
-            throw new EntityTypeException("The user: " + login + "is not a student", "reference idk");
+            throw new EntityTypeException("The user: " + login + " is not a student", "reference idk");
         }
         // Получаем группу
         User user = optionalUser.get();
@@ -78,6 +77,7 @@ public class AdminService {
         }
     }
 
+    // Вызывать два раза (да да, это пипец)
     // Удалить пользователя
     // todo
     @Transactional
@@ -86,24 +86,78 @@ public class AdminService {
         User user = optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         // Отвязываем пользователя от всех его ролей
-        for (Role role : user.getRoles()) {
+        for (Role role : new ArrayList<>(user.getRoles())) {
             role.removeUser(user);
+            user.removeRole(role);
         }
 
-        // Не отвязывем пользователя от оценок, их удалит каскадность
+        // todo
+        // Удаляем оценки
+        for (Grade grade : new ArrayList<>(user.getGrades())) { // Копируем коллекцию, чтобы избежать ConcurrentModificationException
+            user.getGrades().remove(grade);
+            grade.setGradeOwner(null);
+
+            Discipline discipline = grade.getDiscipline();
+            discipline.getGrades().remove(grade);
+
+            grade.setDiscipline(null);
+            gradeRepository.deleteById(grade.getId());
+        }
 
         // Отвязываем преподов от проводимых дисциплин
         for (Discipline discipline : user.getHeldDisciplines()) {
             discipline.setAppointedTeacher(null);
+            user.getHeldDisciplines().remove(discipline);
         }
-        //Удаляем пользователя из группы
+        // Удаляем пользователя из группы
         if (user.getGroup() != null) {
             user.getGroup().removeStudent(user);
+            user.setGroup(null);
         }
+
         // Удаляем пользователя
-        userRepository.delete(user);
+        user.getLogin();
+        System.out.println("User " + user.getId());
+        userRepository.deleteById(user.getId());
+        System.out.println("Deleted");
         return user;
     }
+
+//    @Transactional
+//    public User removeUser(String login) {
+//        User user = userRepository.findByLogin(login)
+//                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+//
+//        // Отвязываем пользователя от ролей
+//        for (Role role : new ArrayList<>(user.getRoles())) {
+//            role.getUsers().remove(user); // Обновляем обратную связь
+//        }
+//        user.getRoles().clear();
+//
+//        // Удаляем оценки
+//        for (Grade grade : new ArrayList<>(user.getGrades())) {
+//            grade.setGradeOwner(null);
+//            grade.setDiscipline(null);
+//        }
+//        user.getGrades().clear();
+//
+//        // Отвязываем дисциплины
+//        for (Discipline discipline : new ArrayList<>(user.getHeldDisciplines())) {
+//            discipline.setAppointedTeacher(null);
+//        }
+//        user.getHeldDisciplines().clear();
+//
+//        // Удаляем пользователя из группы
+//        if (user.getGroup() != null) {
+//            user.getGroup().removeStudent(user);
+//            user.setGroup(null);
+//        }
+//
+//        // Удаляем пользователя
+//        userRepository.delete(user);
+//
+//        return user;
+//    }
 
     // Добавить роль пользователю
     @Transactional
@@ -240,10 +294,14 @@ public class AdminService {
         return discipline;
     }
 
-    // Удалить дисциплину
+    // Удалить дисциплину (Что б@#$ь тут произошло? Пять часов фиксил, так и не понял. Поставил в Discipline.grades LAZY и заработало)
     @Transactional
     public Discipline removeDiscipline(String disciplineName, String teacherLogin) {
-        Discipline discipline = this.getDiscipline(disciplineName, teacherLogin).orElseThrow(() -> new EntityNotFoundException("discipline " + disciplineName + " not found"));
+        User teacher = this.getUserByLogin(teacherLogin).orElseThrow(() -> new EntityNotFoundException("User " + teacherLogin + " not found"));
+        Discipline discipline = disciplineRepository.findByAppointedTeacherAndName(teacher, disciplineName)
+                .orElseThrow(() -> new EntityNotFoundException("Discipline " + disciplineName + ", led by " + teacherLogin + " does not exist"));
+
+        System.out.println("In method, id: " + discipline.getId());
 
         // Удаляем инфу о дисциплине у назначенного на неё препода
         User appointedTeacher = discipline.getAppointedTeacher();
@@ -255,9 +313,25 @@ public class AdminService {
         for (Group group : discipline.getGroups()) {
             group.removeDiscipline(discipline);
         }
-        // Оценки не удаляем, их удалит каскадность
+
+        // Удаляем оценки
+        for (Grade grade : new ArrayList<>(discipline.getGrades())) { // Копируем коллекцию, чтобы избежать ConcurrentModificationException
+            //System.out.println("Grade id " + grade.getId());
+
+            User gradeOwner = grade.getGradeOwner();
+            if (gradeOwner != null) {
+                gradeOwner.getGrades().remove(grade);
+                grade.setGradeOwner(null);
+            }
+
+            //System.out.println(grade.toString());
+            grade.setDiscipline(null);
+            discipline.getGrades().remove(grade);
+            gradeRepository.deleteById(grade.getId());
+        }
 
         disciplineRepository.delete(discipline);
+        System.out.println("Discipline deleted");
         return discipline;
     }
 
@@ -288,10 +362,67 @@ public class AdminService {
         discipline.removeGroup(group);
     }
 
+    // Смотреть оценки пользователя по дисциплине
     @Transactional
-    public void removeTempShit(Discipline discipline) {
-        System.out.println("removind shit @" + discipline.getId());
-        disciplineRepository.delete(discipline);
-        System.out.println("Shit @" + discipline.getId() + " removed");
+    public Set<Grade> getUsersGradesOnDiscipline(String studentLogin, String disciplineName, String teacherLogin) {
+        User student = this.getUserByLogin(studentLogin).orElseThrow(() -> new EntityNotFoundException("Student " + studentLogin + " does not exist"));
+        Discipline discipline = this.getDiscipline(disciplineName, teacherLogin).orElseThrow(() -> new EntityNotFoundException("Discipline " + disciplineName + " led by " + teacherLogin + " not found"));
+
+        Set<Grade> allGrades = discipline.getGrades();
+        Set<Grade> studentsGrades = new HashSet<>();
+
+        for (Grade grade : allGrades) {
+            if (grade.getGradeOwner().getLogin().equals(studentLogin)) {
+                studentsGrades.add(grade);
+            }
+        }
+        return studentsGrades;
+    }
+
+    // Ставить оценки
+    @Transactional
+    public Grade setGrade(String gradeItself, String studentLogin, String disciplineName, String teacherLogin) {
+        // Получаем пользователя и дисциплину
+        User student = this.getUserByLogin(studentLogin).orElseThrow(() -> new EntityNotFoundException("Student " + studentLogin + " does not exist"));
+        Discipline discipline = this.getDiscipline(disciplineName, teacherLogin).orElseThrow(() -> new EntityNotFoundException("Discipline " + disciplineName + " led by " + teacherLogin + " not found"));
+
+        Grade grade = new Grade(gradeItself, student, discipline);
+        gradeRepository.save(grade);
+        return grade;
+    }
+
+    // Менять оценки
+    @Transactional
+    public Grade changeGrade(Integer id, String changedGrade) {
+        Optional<Grade> optionalGrade = gradeRepository.findById(id);
+        Grade grade = optionalGrade.orElseThrow(() -> new EntityNotFoundException("No grade with id " + id));
+
+        grade.setGrade(changedGrade);
+        gradeRepository.save(grade);
+        return grade;
+    }
+
+    // Удалять оценки
+    @Transactional
+    public Grade removeGrade(Integer id) {
+        Grade grade = gradeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("No grade with id " + id));
+
+        // Удаляем оценку из списка оценок пользователя
+        User gradeOwner = grade.getGradeOwner();
+        gradeOwner.getGrades().remove(grade);
+
+        // Удаляем оценку из списка оценок дисциплины
+        Discipline gradeDiscipline = grade.getDiscipline();
+        gradeDiscipline.getGrades().remove(grade);
+
+        // Удаляем оценку из БД
+        gradeRepository.delete(grade);
+        return grade;
+    }
+
+    // Смотреть все оценки
+    @Transactional
+    public List<Grade> getAllGrades() {
+        return gradeRepository.findAll();
     }
 }

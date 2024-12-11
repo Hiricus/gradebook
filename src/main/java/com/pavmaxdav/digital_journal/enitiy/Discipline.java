@@ -1,11 +1,14 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pavmaxdav.digital_journal.dto.DisciplineDTO;
+import com.pavmaxdav.digital_journal.dto.GradeDTO;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity()
 @Table(name = "disciplines")
@@ -17,7 +20,7 @@ public class Discipline {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinColumn(name = "appointed_teacher_id")
     private User appointedTeacher;
 
@@ -26,7 +29,7 @@ public class Discipline {
     private Set<Group> groups = new HashSet<>();
 
     // Двусторонняя связь с оценками, выставленными по этой дисциплине
-    @OneToMany(mappedBy = "discipline", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "discipline", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Grade> grades = new HashSet<>();
 
     // Конструкторы
@@ -90,5 +93,26 @@ public class Discipline {
     }
     public void removeGrade(Grade grade) {
         grades.remove(grade);
+    }
+
+
+    public DisciplineDTO constructDTO() {
+        DisciplineDTO disciplineDTO = new DisciplineDTO(this.getId(), this.getName());
+
+        // Составляем список айдишников групп, у которых проводится эта дисциплина
+        Set<Integer> groupIds = new HashSet<>();
+        for (Group group : this.getGroups()) {
+            groupIds.add(group.getId());
+        }
+        disciplineDTO.setGroupIds(groupIds);
+
+        // Добавляем частичный DTO преподавателя
+        disciplineDTO.setAppointedTeacherPartialDTO(this.getAppointedTeacher().constructPartialDTO());
+
+        // Добавляем список DTO для оценок
+        Set<GradeDTO> gradeDTOS = this.getGrades().stream().map(Grade::constructDTO).collect(Collectors.toSet());
+        disciplineDTO.setGradeDTOS(gradeDTOS);
+
+        return disciplineDTO;
     }
 }

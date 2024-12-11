@@ -1,11 +1,15 @@
 package com.pavmaxdav.digital_journal.enitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pavmaxdav.digital_journal.dto.DisciplineDTO;
+import com.pavmaxdav.digital_journal.dto.GroupDTO;
+import com.pavmaxdav.digital_journal.dto.UserDTO;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "groups_table")
@@ -24,6 +28,7 @@ public class Group {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "groups_disciplines", joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "discipline_id", referencedColumnName = "id"))
+    @JsonIgnore
     private Set<Discipline> disciplines = new HashSet<>();
 
     // Конструкторы
@@ -78,5 +83,20 @@ public class Group {
     }
     public void removeDiscipline(Discipline discipline) {
         this.disciplines.remove(discipline);
+    }
+
+
+    public GroupDTO constructDTO() {
+        GroupDTO groupDTO = new GroupDTO(this.getId(), this.getName());
+
+        // Собираем и добавляем частичную инфу о пользователях
+        Set<UserDTO> userPartialInfo = this.getStudents().stream().map(User::constructPartialDTO).collect(Collectors.toSet());
+        groupDTO.setUserPartialInfo(userPartialInfo);
+
+        // Собираем и добавляем инфу о дисциплинах
+        Set<DisciplineDTO> disciplineDTOS = this.getDisciplines().stream().map(Discipline::constructDTO).collect(Collectors.toSet());
+        groupDTO.setDisciplineDTOS(disciplineDTOS);
+
+        return groupDTO;
     }
 }

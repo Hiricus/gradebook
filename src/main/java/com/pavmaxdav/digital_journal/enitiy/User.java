@@ -2,6 +2,9 @@ package com.pavmaxdav.digital_journal.enitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.pavmaxdav.digital_journal.dto.DisciplineDTO;
+import com.pavmaxdav.digital_journal.dto.RoleDTO;
+import com.pavmaxdav.digital_journal.dto.UserDTO;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -44,7 +48,8 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     // Двусторонняя связь с оценками. Если удаляется пользователь - удаляются и оценки
-    @OneToMany(mappedBy = "gradeOwner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "gradeOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Grade> grades = new HashSet<>();
 
     // Двусторонняя связь с дисциплинами, проводимыми пользователем (только для преподавателей)
@@ -193,5 +198,37 @@ public class User implements UserDetails {
     public UserBasicInfo getUserBasicInfo() {
         UserBasicInfo basicInfo = new UserBasicInfo(this.getLogin(), this.getFirstName(), this.getLastName());
         return basicInfo;
+    }
+
+
+    public UserDTO constructDTO() {
+        UserDTO userDTO = new UserDTO(this.getId(), this.getLogin());
+        userDTO.setFirstName(this.getFirstName());
+        userDTO.setLastName(this.getLastName());
+
+        // Добавляем роли
+        Set<RoleDTO> roleDTOS = this.getRoles().stream().map(Role::constructDTO).collect(Collectors.toSet());
+        userDTO.setRoleDTOS(roleDTOS);
+
+        // Добавляем группу
+        userDTO.setGroup(this.getGroup().constructDTO());
+
+        // Добавляем проводимые дисциплины
+        Set<DisciplineDTO> disciplineDTOS = this.getHeldDisciplines().stream().map(Discipline::constructDTO).collect(Collectors.toSet());
+        userDTO.setHeldDisciplines(disciplineDTOS);
+
+        return userDTO;
+    }
+
+    // Чтобы избежать рекурсии при построении DTO для групп
+    public UserDTO constructPartialDTO() {
+        UserDTO userDTO = new UserDTO(this.getId(), this.getLogin());
+        userDTO.setFirstName(this.getFirstName());
+        userDTO.setLastName(this.getLastName());
+
+        // Добавляем роли
+        Set<RoleDTO> roleDTOS = this.getRoles().stream().map(Role::constructDTO).collect(Collectors.toSet());
+        userDTO.setRoleDTOS(roleDTOS);
+        return userDTO;
     }
 }

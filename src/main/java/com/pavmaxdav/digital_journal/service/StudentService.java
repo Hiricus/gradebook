@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class StudentService {
@@ -32,23 +29,12 @@ public class StudentService {
         return userRepository.findByLogin(login);
     }
 
-    // Получить группу пользователя (в виде объекта с урезанными данными)
+    // Получить группу пользователя
     @Transactional
-    public List<UserBasicInfo> getStudentsGroupBasicInfo(String login) {
-        List<UserBasicInfo> basicInfoList = new ArrayList<>();
+    public Optional<Group> getStudentsGroup(String login) {
         Optional<Group> optionalGroup = adminService.getStudentsGroup(login);
 
-        // Если пользователь не в группе - кидаем исключение
-        if (optionalGroup.isEmpty()) {
-            throw new EntityNotFoundException("The user " + login + " is not assigned to a group");
-        }
-        // Переваниваем инфу о юзерах в нужный список
-        Set<User> students = optionalGroup.get().getStudents();
-        for (User student : students) {
-            basicInfoList.add(student.getUserBasicInfo());
-        }
-        // Возвращаем список
-        return basicInfoList;
+        return optionalGroup;
     }
 
     // Получить дисциплины студента
@@ -74,5 +60,26 @@ public class StudentService {
 
         User user = optionalUser.get();
         return user.getGrades();
+    }
+
+    @Transactional
+    public Set<Grade> getStudentsGradesOnDiscipline(String login, Integer disciplineId) {
+        Optional<User> optionalUser = userRepository.findByLogin(login);
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException("User " + login + " does not exist");
+        }
+
+        User user = optionalUser.get();
+        Set<Grade> unfilteredGrades = user.getGrades();
+
+        Set<Grade> neededGrades = new HashSet<>();
+
+        for (Grade grade : unfilteredGrades) {
+            if (Objects.equals(grade.getDiscipline().getId(), disciplineId)) {
+                neededGrades.add(grade);
+            }
+        }
+
+        return neededGrades;
     }
 }

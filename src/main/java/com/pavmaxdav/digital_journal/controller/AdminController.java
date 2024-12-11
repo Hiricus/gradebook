@@ -1,9 +1,6 @@
 package com.pavmaxdav.digital_journal.controller;
 
-import com.pavmaxdav.digital_journal.enitiy.Discipline;
-import com.pavmaxdav.digital_journal.enitiy.Group;
-import com.pavmaxdav.digital_journal.enitiy.Role;
-import com.pavmaxdav.digital_journal.enitiy.User;
+import com.pavmaxdav.digital_journal.enitiy.*;
 import com.pavmaxdav.digital_journal.service.RoleService;
 import com.pavmaxdav.digital_journal.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +126,12 @@ public class AdminController {
     @PutMapping("/groups/removeUser")
     public void removeStudentFromGroup(@RequestHeader("group") String groupName, @RequestHeader("student") String login) {
 
+    }
+
+    // Видеть все оценки
+    @GetMapping("/grades/getAll")
+    public List<Grade> getAllGrades() {
+        return adminService.getAllGrades();
     }
 
     // Менять оценки
