@@ -62,6 +62,7 @@ public class AdminService implements UserDetailsService {
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         User userEntity = userRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new org.springframework.security.core.userdetails.User(userEntity.getLogin(), userEntity.getPassword(), mapRolesToAuthorities(userEntity.getRoles()));
