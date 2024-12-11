@@ -68,4 +68,8 @@ public class JwtUtils {
         return Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token)
                 .getBody();
     }
+
+    public String extractUserName(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
 }

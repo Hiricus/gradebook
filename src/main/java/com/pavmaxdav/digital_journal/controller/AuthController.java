@@ -3,6 +3,7 @@ package com.pavmaxdav.digital_journal.controller;
 import com.pavmaxdav.digital_journal.dto.JwtRequest;
 import com.pavmaxdav.digital_journal.dto.JwtResponse;
 import com.pavmaxdav.digital_journal.dto.RegisterDTO;
+import com.pavmaxdav.digital_journal.enitiy.Role;
 import com.pavmaxdav.digital_journal.enitiy.User;
 import com.pavmaxdav.digital_journal.model.RoleRepository;
 import com.pavmaxdav.digital_journal.model.UserRepository;
@@ -64,7 +65,9 @@ public class AuthController {
                 passwordEncoder.encode(registerDTO.getPassword()),
                 registerDTO.getEmail()
         );
+        user.addRole(new Role("USER"));
         userService.addUser(user);
+
 
         return new ResponseEntity<>("User registration succesfull!", HttpStatus.OK);
 
