@@ -99,4 +99,9 @@ public class Group {
 
         return groupDTO;
     }
+
+    public GroupDTO constructPartialDTO() {
+        GroupDTO groupDTO = new GroupDTO(this.getId(), this.getName());
+        return groupDTO;
+    }
 }

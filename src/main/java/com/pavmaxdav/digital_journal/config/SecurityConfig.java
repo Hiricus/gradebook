@@ -24,9 +24,9 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/register")
                 ).
                 authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/authorize/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+//                        .requestMatchers("/authorize/**").permitAll()
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/teacher/**").hasRole("TEACHER")
                         .anyRequest().permitAll() // Разрешаем все запросы
                 );
         return http.build();

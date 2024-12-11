@@ -1,5 +1,8 @@
 package com.pavmaxdav.digital_journal.controller;
 
+import com.pavmaxdav.digital_journal.dto.CreateUserDTO;
+import com.pavmaxdav.digital_journal.dto.DisciplineDTO;
+import com.pavmaxdav.digital_journal.dto.UserDTO;
 import com.pavmaxdav.digital_journal.enitiy.*;
 import com.pavmaxdav.digital_journal.service.RoleService;
 import com.pavmaxdav.digital_journal.service.AdminService;
@@ -9,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin")
@@ -29,7 +34,8 @@ public class AdminController {
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(users, HttpStatus.OK);
+            List<UserDTO> userPartialDTOS = users.stream().map(User::constructPartialDTO).toList();
+            return new ResponseEntity<>(userPartialDTOS, HttpStatus.OK);
         }
     }
 
@@ -45,8 +51,19 @@ public class AdminController {
     }
 
     // Добавлять пользователей
-    @PostMapping("/users/add/")
-    public User addNewUser(@RequestParam User givenUser) {
+    @PostMapping("/users/addUser/")
+    public ResponseEntity<Object> addNewUser(@RequestBody CreateUserDTO userDTO) {
+        User newUser = userDTO.constructUser();
+
+        // Если объект не содержит данных о группе
+//        if
+
+        Optional<Group> optionalGroup = adminService.getGroup(userDTO.getGroup());
+
+        // Если есть
+        if (optionalGroup.isPresent()) {
+            adminService.addUser(newUser);
+        }
         return null;
     }
     // Удалять пользователей
@@ -74,7 +91,8 @@ public class AdminController {
         if (disciplines.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(disciplines, HttpStatus.OK);
+            List<DisciplineDTO> disciplineDTOS = disciplines.stream().map(Discipline::constructDTO).toList();
+            return new ResponseEntity<>(disciplineDTOS, HttpStatus.OK);
         }
     }
 

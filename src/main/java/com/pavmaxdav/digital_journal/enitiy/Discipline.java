@@ -107,7 +107,9 @@ public class Discipline {
         disciplineDTO.setGroupIds(groupIds);
 
         // Добавляем частичный DTO преподавателя
-        disciplineDTO.setAppointedTeacherPartialDTO(this.getAppointedTeacher().constructPartialDTO());
+        if (this.getAppointedTeacher() != null) {
+            disciplineDTO.setAppointedTeacherPartialDTO(this.getAppointedTeacher().constructPartialDTO());
+        }
 
         // Добавляем список DTO для оценок
         Set<GradeDTO> gradeDTOS = this.getGrades().stream().map(Grade::constructDTO).collect(Collectors.toSet());

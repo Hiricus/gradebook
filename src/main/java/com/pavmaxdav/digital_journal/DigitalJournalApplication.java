@@ -25,7 +25,8 @@ public class DigitalJournalApplication {
 //		adminService.addRoleToUser("Bardoon", new Role("student"));
 
 //		adminService.addUser(createUser1());
-//		adminService.addUserToGroup("Hiricus", "11-A");
+//		adminService.addNewGroup("ПИ-б-о-212");
+//		adminService.addUserToGroup("Hiricus", "ПИ-б-о-212");
 //		adminService.setGrade("S", "Hiricus", "Math", "Yul'ka");
 
 
@@ -40,7 +41,7 @@ public class DigitalJournalApplication {
 		//adminService.removeUser("Yul'ka");
 
 //		adminService.addNewDiscipline("Math", "Yul'ka");
-//		adminService.addDisciplineToGroup("11-A", "Math", "Yul'ka");
+//		adminService.addDisciplineToGroup("ПИ-б-о-212", "Math", "Yul'ka");
 
 //		adminService.setGrade("A", "Filoriel", "Math", "Yul'ka");
 //		adminService.setGrade("S", "Filoriel", "Math", "Yul'ka");
@@ -99,7 +100,7 @@ public class DigitalJournalApplication {
 
 		user.addRole(new Role("User"));
 		user.addRole(new Role("Staff"));
-		user.addRole(new Role("teacher"));
+		user.addRole(new Role("TEACHER"));
 
 		return user;
 	}

@@ -293,9 +293,9 @@ public class AdminService implements UserDetailsService {
         User user = this.getUserByLogin(teacherLogin).orElseThrow(() -> new EntityNotFoundException("User " + teacherLogin + " not found"));
 
         // Если назначенный челик не препод - кидаем исключение хз какого типа
-        if (!(user.hasRole("teacher"))) {
-            throw new EntityTypeException("User " + teacherLogin + " must be a teacher", "reference idk");
-        }
+//        if (!(user.hasRole("ROLE_TEACHER"))) {
+//            throw new EntityTypeException("User " + teacherLogin + " must be a teacher", "reference idk");
+//        }
 
         // Если такая дисциплина есть - кидаем исключение
         if (disciplineRepository.findByAppointedTeacherAndName(user, name).isPresent()) {

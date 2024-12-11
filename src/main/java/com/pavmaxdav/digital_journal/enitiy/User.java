@@ -103,7 +103,18 @@ public class User implements UserDetails {
     public void setGroup(Group group) {
         this.group = group;
     }
-
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public void setLogin(String login) {
+        this.login = login;
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
     // Тут был private, хз почему
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
@@ -121,6 +132,10 @@ public class User implements UserDetails {
     public User() {}
     public User(int id) {
         this.id = id;
+    }
+    public User(Integer id, String login) {
+        this.id = id;
+        this.login = login;
     }
     public User(String login, String email, String password) {
         this.login = login;
@@ -201,21 +216,30 @@ public class User implements UserDetails {
     }
 
 
+
     public UserDTO constructDTO() {
         UserDTO userDTO = new UserDTO(this.getId(), this.getLogin());
-        userDTO.setFirstName(this.getFirstName());
-        userDTO.setLastName(this.getLastName());
+        if (this.getFirstName() != null) {
+            userDTO.setFirstName(this.getFirstName());
+        }
+        if (this.getLastName() != null) {
+            userDTO.setLastName(this.getLastName());
+        }
 
         // Добавляем роли
         Set<RoleDTO> roleDTOS = this.getRoles().stream().map(Role::constructDTO).collect(Collectors.toSet());
         userDTO.setRoleDTOS(roleDTOS);
 
         // Добавляем группу
-        userDTO.setGroup(this.getGroup().constructDTO());
+        if (this.getGroup() != null) {
+            userDTO.setGroup(this.getGroup().constructDTO());
+        }
 
         // Добавляем проводимые дисциплины
-        Set<DisciplineDTO> disciplineDTOS = this.getHeldDisciplines().stream().map(Discipline::constructDTO).collect(Collectors.toSet());
-        userDTO.setHeldDisciplines(disciplineDTOS);
+        if (this.getHeldDisciplines() != null) {
+            Set<DisciplineDTO> disciplineDTOS = this.getHeldDisciplines().stream().map(Discipline::constructDTO).collect(Collectors.toSet());
+            userDTO.setHeldDisciplines(disciplineDTOS);
+        }
 
         return userDTO;
     }
@@ -223,12 +247,21 @@ public class User implements UserDetails {
     // Чтобы избежать рекурсии при построении DTO для групп
     public UserDTO constructPartialDTO() {
         UserDTO userDTO = new UserDTO(this.getId(), this.getLogin());
-        userDTO.setFirstName(this.getFirstName());
-        userDTO.setLastName(this.getLastName());
+        if (this.getFirstName() != null) {
+            userDTO.setFirstName(this.getFirstName());
+        }
+        if (this.getLastName() != null) {
+            userDTO.setLastName(this.getLastName());
+        }
 
         // Добавляем роли
         Set<RoleDTO> roleDTOS = this.getRoles().stream().map(Role::constructDTO).collect(Collectors.toSet());
         userDTO.setRoleDTOS(roleDTOS);
+
+        // Добавляем урезанную инфу о группе
+        if (this.getGroup() != null) {
+            userDTO.setGroup(this.getGroup().constructPartialDTO());
+        }
         return userDTO;
     }
 }

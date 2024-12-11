@@ -33,7 +33,7 @@ public class StudentController {
         if (optionalUser.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        UserDTO userDTO = optionalUser.get().constructDTO();
+        UserDTO userDTO = optionalUser.get().constructPartialDTO();
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
