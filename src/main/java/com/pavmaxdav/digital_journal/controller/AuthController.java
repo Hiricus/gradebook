@@ -56,7 +56,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
         // Check if user exist
-        // TO DO
+        // TODO
 
         User user = new User(
                 registerDTO.getLogin(),
@@ -65,7 +65,7 @@ public class AuthController {
                 passwordEncoder.encode(registerDTO.getPassword()),
                 registerDTO.getEmail()
         );
-        user.addRole(new Role("USER"));
+        user.addRole(new Role(registerDTO.getRole()));
         userService.addUser(user);
 
 

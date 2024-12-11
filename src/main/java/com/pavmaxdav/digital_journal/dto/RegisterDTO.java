@@ -6,6 +6,7 @@ public class RegisterDTO {
     private String lastName;
     private String password;
     private String email;
+    private String role;
 
     public String getLogin() {
         return login;
@@ -41,6 +42,14 @@ public class RegisterDTO {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String roles) {
+        this.role = roles;
     }
 
     public void setEmail(String email) {

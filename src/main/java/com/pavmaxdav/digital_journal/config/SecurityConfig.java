@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/authorize/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
-                        .anyRequest().permitAll() // Разрешаем все запросы
+                        .anyRequest().authenticated() // Разрешаем все запросы
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
