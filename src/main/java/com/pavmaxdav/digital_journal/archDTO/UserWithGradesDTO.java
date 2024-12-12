@@ -45,4 +45,8 @@ public class UserWithGradesDTO {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    public void setGradesOnDisciplines(List<GradesOnDisciplineDTO> gradesOnDisciplines) {
+        this.gradesOnDisciplines = gradesOnDisciplines;
+    }
 }

@@ -57,50 +57,64 @@ public class DigitalJournalApplication {
 
 
 		//adminService.removeGrade(1602);
+
+
+
+
+		//adminService.addUser(createUser1());
+//		adminService.removeRoleFromUser("Hiricus", new Role("ROLE_TEACHER"));
+//		adminService.removeRoleFromUser("Hiricus", new Role("ROLE_ADMIN"));
+//		adminService.addNewGroup("ПИ-б-о-212");
+//		adminService.addNewGroup("ПИ-б-о-211");
+
+
+//		adminService.addUserToGroup("Hiricus", "ПИ-б-о-212");
+//		adminService.addUserToGroup("Bananaws", "ПИ-б-о-212");
+//		adminService.addUserToGroup("Maximk4", "ПИ-б-о-212");
+//		adminService.addUserToGroup("TimIri", "ПИ-б-о-212");
+//		adminService.addUserToGroup("KPoro", "ПИ-б-о-212");
+
+//		adminService.addUserToGroup("Okneas", "ПИ-б-о-211");
+//		adminService.addUserToGroup("Tolik228", "ПИ-б-о-211");
+//		adminService.addUserToGroup("DanS", "ПИ-б-о-211");
+
+//		adminService.addNewDiscipline("Управление разработкой", "VVChab");
+//		adminService.addNewDiscipline("СТП", "VVChab");
+//		adminService.addDisciplineToGroup("ПИ-б-о-212", "Управление разработкой", "VVChab");
+//		adminService.addDisciplineToGroup("ПИ-б-о-211", "Управление разработкой", "VVChab");
+//		adminService.addDisciplineToGroup("ПИ-б-о-212", "СТП", "VVChab");
+//		adminService.addDisciplineToGroup("ПИ-б-о-211", "СТП", "VVChab");
+
+//		adminService.setGrade("5", "Hiricus", "Управление разработкой", "VVChab");
+//		adminService.setGrade("5", "Bananaws", "Управление разработкой", "VVChab");
+//		adminService.setGrade("5", "Maximk4", "Управление разработкой", "VVChab");
+//		adminService.setGrade("5", "TimIri", "Управление разработкой", "VVChab");
+//		adminService.setGrade("5", "KPoro", "Управление разработкой", "VVChab");
+//
+//		adminService.setGrade("5", "Okneas", "Управление разработкой", "VVChab");
+//		adminService.setGrade("5", "Tolik228", "Управление разработкой", "VVChab");
+//		adminService.setGrade("5", "DanS", "Управление разработкой", "VVChab");
+
+//		adminService.setGrade("2", "Hiricus", "СТП", "VVChab");
+//		adminService.setGrade("3", "Bananaws", "СТП", "VVChab");
+//		adminService.setGrade("2", "Maximk4", "СТП", "VVChab");
+//		adminService.setGrade("3", "TimIri", "СТП", "VVChab");
+//		adminService.setGrade("2", "KPoro", "СТП", "VVChab");
+//
+//		adminService.setGrade("3", "Okneas", "СТП", "VVChab");
+//		adminService.setGrade("2", "Tolik228", "СТП", "VVChab");
+//		adminService.setGrade("3", "DanS", "СТП", "VVChab");
 	}
 
 	public static User createUser1() {
-		User user = new User("Hiricus", "Алавел", "Павидлов", "2556145", "yandex@mail");
-		Role role1 = new Role("Labmem");
-		Role role2 = new Role("Staff");
-		Role role3 = new Role("GOAT");
+		User user = new User("Hiricus", "Павел", "Свиридов", "2556145", "hexaeder@yandex.ru");
+		Role role1 = new Role("ROLE_STUDENT");
+		Role role2 = new Role("ROLE_TEACHER");
+		Role role3 = new Role("ROLE_ADMIN");
 
 		user.addRole(role1);
 		user.addRole(role2);
 		user.addRole(role3);
-
-		return user;
-	}
-
-	public static User createUser2() {
-		User user = new User("Filoriel", "Павдрей", "Сверлюхев", "227", "mail@ru");
-		Role role1 = new Role("User");
-		Role role2 = new Role("Akakan");
-		Role role3 = new Role("gaga");
-
-		user.addRole(role1);
-		user.addRole(role2);
-		user.addRole(role3);
-
-		return user;
-	}
-
-	public static User createUser3() {
-		User user = new User("Bardoon", "Bardoon the 1st", "Kozlov", "123", "some@mail");
-
-		user.addRole(new Role("User"));
-		user.addRole(new Role("Staff"));
-		user.addRole(new Role("GOAT"));
-
-		return user;
-	}
-
-	public static User createPipets() {
-		User user = new User("Yul'ka", "Юлия", "Александровна", "1488", "mail@ig");
-
-		user.addRole(new Role("User"));
-		user.addRole(new Role("Staff"));
-		user.addRole(new Role("TEACHER"));
 
 		return user;
 	}

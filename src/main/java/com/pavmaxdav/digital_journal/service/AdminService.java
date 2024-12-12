@@ -1,6 +1,9 @@
 package com.pavmaxdav.digital_journal.service;
 
 import com.pavmaxdav.digital_journal.archDTO.ArchDisciplineDTO;
+import com.pavmaxdav.digital_journal.archDTO.ArchGroupDTO;
+import com.pavmaxdav.digital_journal.archDTO.GradesOnDisciplineDTO;
+import com.pavmaxdav.digital_journal.archDTO.UserWithGradesDTO;
 import com.pavmaxdav.digital_journal.enitiy.*;
 import com.pavmaxdav.digital_journal.model.*;
 import jakarta.persistence.EntityExistsException;
@@ -459,13 +462,44 @@ public class AdminService implements UserDetailsService {
         return gradeRepository.findAll();
     }
 
-//    @Transactional
-//    public ArchDisciplineDTO createArchDisciplineDTO(Integer id) {
-//        Optional<Discipline> optionalDiscipline = disciplineRepository.findById(id);
-//        if (optionalDiscipline.isEmpty()) {
-//
-//        }
-//
-//        ArchDisciplineDTO archDisciplineDTO = new ArchDisciplineDTO(discipline.)
-//    }
+    @Transactional
+    public ArchDisciplineDTO createArchDisciplineDTO(Integer id) {
+        Optional<Discipline> optionalDiscipline = disciplineRepository.findById(id);
+        if (optionalDiscipline.isEmpty()) {
+            return null;
+        }
+        Discipline discipline = optionalDiscipline.get();
+        ArchDisciplineDTO archDisciplineDTO = new ArchDisciplineDTO(discipline.getId(), discipline.getName());
+
+        List<ArchGroupDTO> archGroupDTOS = new ArrayList<>();
+
+        // собираем DTO из групп
+        for (Group group : discipline.getGroups()) {
+
+            ArchGroupDTO archGroupDTO = new ArchGroupDTO(group.getId(), group.getName());
+            archGroupDTOS.add(archGroupDTO);
+
+            List<UserWithGradesDTO> userWithGradesDTOS = new ArrayList<>();
+            archDisciplineDTO.setArchGroupDTOS(archGroupDTOS);
+
+            // Собираем DTO из студентов, учащихся на этой дисциплине
+            for (User user : group.getStudents()) {
+
+                UserWithGradesDTO userWithGradesDTO = new UserWithGradesDTO(user.getId(), user.getLogin() , user.getFirstName(), user.getLastName());
+
+                List<GradesOnDisciplineDTO> gradesOnDisciplineDTOS = new ArrayList<>();
+                userWithGradesDTO.setGradesOnDisciplines(gradesOnDisciplineDTOS);
+
+                for (Grade grade : user.getGrades()) {
+                    // Если оценка по нужной дисциплине - кидаем в массив
+                    if (Objects.equals(grade.getDiscipline().getId(), discipline.getId())) {
+                        gradesOnDisciplineDTOS.add(new GradesOnDisciplineDTO(grade.getId(), grade.getGrade(), grade.getDateTime()));
+                    }
+                }
+                System.out.println(userWithGradesDTO);
+                userWithGradesDTOS.add(userWithGradesDTO);
+            }
+        }
+        return archDisciplineDTO;
+    }
 }

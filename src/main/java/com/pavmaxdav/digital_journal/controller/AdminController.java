@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal.controller;
 
+import com.pavmaxdav.digital_journal.archDTO.ArchDisciplineDTO;
 import com.pavmaxdav.digital_journal.dto.CreateUserDTO;
 import com.pavmaxdav.digital_journal.dto.DisciplineDTO;
 import com.pavmaxdav.digital_journal.dto.UserDTO;
@@ -192,7 +193,9 @@ public class AdminController {
         return adminService.getAllGrades();
     }
 
-    // Менять оценки
-    // А как однозначно определить оценку я хз
-    // Приехали
+    // Получить дисциплину с пользователями и оценками
+    @GetMapping("/disciplines/get/{id}")
+    public ArchDisciplineDTO getAllAboutDiscipline(@PathVariable Integer id) {
+        return adminService.createArchDisciplineDTO(id);
+    }
 }

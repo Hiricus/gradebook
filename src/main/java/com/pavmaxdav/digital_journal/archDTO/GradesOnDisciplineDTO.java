@@ -6,4 +6,10 @@ public class GradesOnDisciplineDTO {
     private Integer id;
     private String grade;
     private LocalDateTime dateTime;
+
+    public GradesOnDisciplineDTO(Integer id, String grade, LocalDateTime dateTime) {
+        this.id = id;
+        this.grade = grade;
+        this.dateTime = dateTime;
+    }
 }

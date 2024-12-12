@@ -30,4 +30,7 @@ public class ArchGroupDTO {
     public void setName(String name) {
         this.name = name;
     }
+    public void setUserWithGradesDTOS(List<UserWithGradesDTO> userWithGradesDTOS) {
+        this.userWithGradesDTOS = userWithGradesDTOS;
+    }
 }
