@@ -6,14 +6,16 @@ public class GradeDTO {
     private Integer id;
     private String grade;
     private LocalDateTime dateTime;
-    private UserDTO gradeOwnerPartialDTO;
+    private Integer ownerId;
+    private String ownerLogin;
 
     // Конструкторы
-    public GradeDTO(Integer id, String grade, LocalDateTime dateTime, UserDTO gradeOwnerPartialDTO) {
+    public GradeDTO(Integer id, String grade, LocalDateTime dateTime, Integer ownerId, String ownerLogin) {
         this.id = id;
         this.grade = grade;
         this.dateTime = dateTime;
-        this.gradeOwnerPartialDTO = gradeOwnerPartialDTO;
+        this.ownerId = ownerId;
+        this.ownerLogin = ownerLogin;
     }
 
     // Геттеры
@@ -26,15 +28,15 @@ public class GradeDTO {
     public LocalDateTime getDateTime() {
         return dateTime;
     }
-    public UserDTO getGradeOwnerPartialDTO() {
-        return gradeOwnerPartialDTO;
+    public Integer getOwnerId() {
+        return ownerId;
+    }
+    public String getOwnerLogin() {
+        return ownerLogin;
     }
 
     // Сеттеры
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
-    }
-    public void setGradeOwnerPartialDTO(UserDTO gradeOwnerPartialDTO) {
-        this.gradeOwnerPartialDTO = gradeOwnerPartialDTO;
     }
 }

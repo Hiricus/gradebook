@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal.service;
 
+import com.pavmaxdav.digital_journal.archDTO.ArchDisciplineDTO;
 import com.pavmaxdav.digital_journal.enitiy.*;
 import com.pavmaxdav.digital_journal.model.*;
 import jakarta.persistence.EntityExistsException;
@@ -46,6 +47,12 @@ public class AdminService implements UserDetailsService {
         return userRepository.findByLogin(login);
     }
 
+    // Получить пользователя по id
+    @Transactional
+    public Optional<User> getUserById(Integer id) {
+        return userRepository.findById(id);
+    }
+
     // Получить группу пользователя (Только если это студент)
     @Transactional
     public Optional<Group> getStudentsGroup(String login) {
@@ -53,9 +60,9 @@ public class AdminService implements UserDetailsService {
         if (optionalUser.isEmpty()) {
             throw new EntityNotFoundException("No such user with login: " + login);
         }
-        if (!(optionalUser.get().hasRole("student"))) {
-            throw new EntityTypeException("The user: " + login + " is not a student", "reference idk");
-        }
+//        if (!(optionalUser.get().hasRole("student"))) {
+//            throw new EntityTypeException("The user: " + login + " is not a student", "reference idk");
+//        }
         // Получаем группу
         User user = optionalUser.get();
         return Optional.of(user.getGroup());
@@ -68,7 +75,7 @@ public class AdminService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(userEntity.getLogin(), userEntity.getPassword(), mapRolesToAuthorities(userEntity.getRoles()));
     }
 
-    private Collection<GrantedAuthority> mapRolesToAuthorities(Set<Role> roles){
+    private Collection<GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet());
     }
 
@@ -100,7 +107,10 @@ public class AdminService implements UserDetailsService {
     @Transactional
     public User removeUser(String login) {
         Optional<User> optionalUser = userRepository.findByLogin(login);
-        User user = optionalUser.orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+        User user = optionalUser.get();
 
         // Отвязываем пользователя от всех его ролей
         for (Role role : new ArrayList<>(user.getRoles())) {
@@ -215,6 +225,12 @@ public class AdminService implements UserDetailsService {
     @Transactional
     public Optional<Group> getGroup(String name) {
         return groupRepository.findByName(name);
+    }
+
+    // Получить группу по id
+    @Transactional
+    public Optional<Group> getGroupById(Integer id) {
+        return groupRepository.findById(id);
     }
 
     // Добавить группу
@@ -442,4 +458,14 @@ public class AdminService implements UserDetailsService {
     public List<Grade> getAllGrades() {
         return gradeRepository.findAll();
     }
+
+//    @Transactional
+//    public ArchDisciplineDTO createArchDisciplineDTO(Integer id) {
+//        Optional<Discipline> optionalDiscipline = disciplineRepository.findById(id);
+//        if (optionalDiscipline.isEmpty()) {
+//
+//        }
+//
+//        ArchDisciplineDTO archDisciplineDTO = new ArchDisciplineDTO(discipline.)
+//    }
 }

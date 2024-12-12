@@ -1,5 +1,6 @@
 package com.pavmaxdav.digital_journal.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,22 +14,39 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+
+    public JwtAuthentificationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    public SecurityConfig(JwtAuthentificationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.
                 csrf((csrf) -> csrf
                         .ignoringRequestMatchers("/authorize")
                         .ignoringRequestMatchers("/register")
+                        .ignoringRequestMatchers("/admin/**")
+                )
+                .formLogin(form -> form
+                        .loginPage("/login").permitAll()
+                )
+                .logout(logout -> logout
+                        .permitAll()
                 ).
                 authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/authorize/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/teacher/**").hasRole("TEACHER")
                         .anyRequest().permitAll() // Разрешаем все запросы
-                );
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

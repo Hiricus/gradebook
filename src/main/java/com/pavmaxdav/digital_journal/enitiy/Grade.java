@@ -101,7 +101,7 @@ public class Grade {
     }
 
     public GradeDTO constructDTO() {
-        GradeDTO gradeDTO = new GradeDTO(this.getId(), this.getGrade(), this.getDateTime(), this.getGradeOwner().constructPartialDTO());
+        GradeDTO gradeDTO = new GradeDTO(this.getId(), this.getGrade(), this.getDateTime(), this.getGradeOwner().getId(), this.getGradeOwner().getLogin());
         return gradeDTO;
     }
 }

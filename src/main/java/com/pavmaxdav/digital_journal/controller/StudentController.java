@@ -26,6 +26,18 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    // Получить пользователя по логину
+    @GetMapping("getUser/{login}")
+    public ResponseEntity<Object> getUserByLogin(@PathVariable String login) {
+        Optional<User> optionalUser = studentService.getUserByLogin(login);
+        if (optionalUser.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        UserDTO userDTO = optionalUser.get().constructDTO();
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
+
     // Смотреть данные о себе
     @GetMapping("/getByLogin/{login}")
     public ResponseEntity<Object> getInfoOnSelf(@PathVariable String login) {

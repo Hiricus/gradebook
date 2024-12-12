@@ -115,6 +115,10 @@ public class User implements UserDetails {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     // Тут был private, хз почему
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
@@ -165,8 +169,12 @@ public class User implements UserDetails {
     @Override
     public String toString() {
         return "User{" +
-                "firstName='" + firstName + '\'' +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 
@@ -225,6 +233,9 @@ public class User implements UserDetails {
         if (this.getLastName() != null) {
             userDTO.setLastName(this.getLastName());
         }
+        if (this.getEmail() != null) {
+            userDTO.setEmail(this.getEmail());
+        }
 
         // Добавляем роли
         Set<RoleDTO> roleDTOS = this.getRoles().stream().map(Role::constructDTO).collect(Collectors.toSet());
@@ -252,6 +263,9 @@ public class User implements UserDetails {
         }
         if (this.getLastName() != null) {
             userDTO.setLastName(this.getLastName());
+        }
+        if (this.getEmail() != null) {
+            userDTO.setEmail(this.getEmail());
         }
 
         // Добавляем роли

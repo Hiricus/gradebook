@@ -7,6 +7,7 @@ public class UserDTO {
     private String login;
     private String firstName;
     private String lastName;
+    private String email;
     private Set<RoleDTO> roleDTOS;
     private GroupDTO group;
     private Set<DisciplineDTO> heldDisciplines;
@@ -46,6 +47,9 @@ public class UserDTO {
     public Set<DisciplineDTO> getHeldDisciplines() {
         return heldDisciplines;
     }
+    public String getEmail() {
+        return email;
+    }
 
     // Сеттеры
     public void setFirstName(String firstName) {
@@ -62,5 +66,8 @@ public class UserDTO {
     }
     public void setHeldDisciplines(Set<DisciplineDTO> heldDisciplines) {
         this.heldDisciplines = heldDisciplines;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

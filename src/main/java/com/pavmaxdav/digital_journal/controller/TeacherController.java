@@ -53,7 +53,6 @@ public class TeacherController {
     // Смотреть данные о группах, где он ведёт
     @GetMapping("/groups/getByLogin/{login}")
     public List<Group> getAllHeldGroups(@PathVariable String login) {
-        //Set<Group> groups =
         return null;
     }
 

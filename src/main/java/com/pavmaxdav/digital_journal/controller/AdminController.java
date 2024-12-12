@@ -9,6 +9,7 @@ import com.pavmaxdav.digital_journal.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,18 @@ public class AdminController {
         }
     }
 
+    // Получить пользователя по логину
+    @GetMapping("getUser/{login}")
+    public ResponseEntity<Object> getUserByLogin(@PathVariable String login) {
+        Optional<User> optionalUser = adminService.getUserByLogin(login);
+        if (optionalUser.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        UserDTO userDTO = optionalUser.get().constructDTO();
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
+
     // Видеть все роли
     @GetMapping("/roles/getAll")
     public ResponseEntity<Object> getAllRoles() {
@@ -50,26 +63,41 @@ public class AdminController {
         }
     }
 
-    // Добавлять пользователей
-    @PostMapping("/users/addUser/")
+    // Добавить пользователя
+    @PostMapping("/users/addUser")
     public ResponseEntity<Object> addNewUser(@RequestBody CreateUserDTO userDTO) {
         User newUser = userDTO.constructUser();
+        System.out.println("DTO: " + userDTO.toString());
+        System.out.println("User: " + newUser.toString());
 
         // Если объект не содержит данных о группе
-//        if
-
-        Optional<Group> optionalGroup = adminService.getGroup(userDTO.getGroup());
-
-        // Если есть
-        if (optionalGroup.isPresent()) {
+        if (userDTO.getGroup() == null) {
             adminService.addUser(newUser);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } else {  // Если объект содержит данные о группе
+            Optional<Group> optionalGroup = adminService.getGroup(userDTO.getGroup());
+
+            // Если описанная группа есть
+            if (optionalGroup.isPresent()) {
+                adminService.addUser(newUser);
+                adminService.addUserToGroup(newUser.getLogin(), optionalGroup.get().getName());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
     // Удалять пользователей
-    @DeleteMapping("/users/remove/{login}")
-    public User removeUser(@PathVariable String login) {
-        return adminService.removeUser(login);
+    @DeleteMapping("/remove/user/{id}")
+    public ResponseEntity<Object> removeUser(@PathVariable Integer id) {
+        Optional<User> optionalUser = adminService.getUserById(id);
+        if (optionalUser.isPresent()) {
+            String login = optionalUser.get().getLogin();
+            adminService.removeUser(login);
+            adminService.removeUser(login);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // Добавлять роли пользователям
@@ -125,19 +153,31 @@ public class AdminController {
     }
 
     // Добавлять группы
-    @PostMapping("/groups/add/{name}")
-    public Group addNewGroup(@PathVariable String name) {
-        return null;
+    @PostMapping("/add/group")
+    public ResponseEntity<Object> addNewGroup(@RequestParam("group-name") String groupName) {
+        Optional<Group> optionalGroup = adminService.getGroup(groupName);
+        if (optionalGroup.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        adminService.addNewGroup(groupName);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
     // Удалять группы
-    @DeleteMapping("/groups/remove/{name}")
-    public Group removeGroup(@PathVariable String name) {
-        return null;
+    @DeleteMapping("/remove/group/{id}")
+    public ResponseEntity<Object> removeGroup(@PathVariable Integer id) {
+        Optional<Group> optionalGroup = adminService.getGroupById(id);
+        if (optionalGroup.isPresent()) {
+            adminService.removeGroup(optionalGroup.get().getName());
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // Добавлять пользователей в группы
-    @PutMapping("/groups/addUser")
-    public void addStudentToGroup(@RequestHeader("group") String groupName, @RequestHeader("student") String login) {
+    @PutMapping("/admin/add/userToGroup")
+    public void addStudentToGroup(@RequestParam("group-name") String groupName, @RequestParam("student-login") String login) {
+        Optional<Group> optionalGroup = adminService.getGroup(groupName);
 
     }
     // Удалять пользователей из групп
